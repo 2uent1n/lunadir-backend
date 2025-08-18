@@ -19,47 +19,50 @@ class UserController(
 ) {
 
     @GetMapping
-    fun getAllUsers(): List<User> {
-        return userService.getAllUsers()
+    fun getAll(): ResponseEntity<List<User>> {
+        val users = userService.getAll()
+        return ResponseEntity.ok(users)
     }
 
     @PostMapping
-    fun createUser(
+    fun create(
         @RequestBody userDto: UserDto,
     ): ResponseEntity<User> {
-        val createdUser = userService.createUser(userDto)
-        return ResponseEntity(createdUser, HttpStatus.CREATED)
+        val createdUser = userService.create(userDto)
+        return ResponseEntity(
+            createdUser,
+            HttpStatus.CREATED
+        )
     }
 
     @GetMapping("/{id}")
-    fun getUserById(
+    fun getById(
         @PathVariable("id") userId: UUID,
     ): ResponseEntity<User> {
-        val user = userService.getUserById(userId)
-        return if (user == null) {
-            ResponseEntity.notFound().build()
-        } else {
-            ResponseEntity.ok(user)
-        }
+        val user = userService.getById(userId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(user)
+
     }
 
     @PutMapping("/{id}")
-    fun updateUserById(
+    fun update(
         @PathVariable("id") userId: UUID,
         @RequestBody userDto: UserDto,
     ): ResponseEntity<User> {
-        val updatedUser = userService.updateUserById(userId, userDto)
+        val updatedUser = userService.update(userId, userDto)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(updatedUser)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteUserById(
+    fun delete(
         @PathVariable("id") userId: UUID,
     ): ResponseEntity<Void> {
-        if (!userService.deleteUserById(userId)) {
-            return ResponseEntity.notFound().build()
+        return if (!userService.delete(userId)) {
+            ResponseEntity.notFound().build()
+        } else {
+            ResponseEntity.noContent().build()
         }
-        return ResponseEntity.noContent().build()
     }
 }
