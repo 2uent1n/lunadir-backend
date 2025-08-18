@@ -1,0 +1,15 @@
+services:
+  db:
+    container_name: lunadir-db
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: lunadir
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - lunadir-data:/var/lib/postgresql/data
+
+volumes:
+  lunadir-data:
