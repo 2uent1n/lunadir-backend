@@ -13,15 +13,6 @@ class UserService(
         return userRepository.findAll().toList()
     }
 
-    fun create(userDto: UserDto): User {
-        return userRepository.save(
-            User(
-                name = userDto.name,
-                email = userDto.email,
-            )
-        )
-    }
-
     fun getById(id: UUID): User? {
         return userRepository.findByIdOrNull(id)
     }

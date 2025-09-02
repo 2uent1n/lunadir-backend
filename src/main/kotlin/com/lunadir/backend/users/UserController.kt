@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 class UserController(
     private val userService: UserService
 ) {
@@ -22,17 +22,6 @@ class UserController(
     fun getAll(): ResponseEntity<List<User>> {
         val users = userService.getAll()
         return ResponseEntity.ok(users)
-    }
-
-    @PostMapping
-    fun create(
-        @RequestBody userDto: UserDto,
-    ): ResponseEntity<User> {
-        val createdUser = userService.create(userDto)
-        return ResponseEntity(
-            createdUser,
-            HttpStatus.CREATED
-        )
     }
 
     @GetMapping("/{id}")
