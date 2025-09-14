@@ -1,68 +1,49 @@
 package com.lunadir.backend.users
 
-import org.springframework.http.HttpStatus
+import com.lunadir.backend.security.AuthService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 class UserController(
-    private val userService: UserService
+    private val userService: UserService,
+    private val authService: AuthService,
 ) {
 
+    /**
+     * Get the data of the authenticated User.
+     */
     @GetMapping
-    fun getAll(): ResponseEntity<List<User>> {
-        val users = userService.getAll()
-        return ResponseEntity.ok(users)
-    }
-
-    @PostMapping
-    fun create(
-        @RequestBody userDto: UserDto,
-    ): ResponseEntity<User> {
-        val createdUser = userService.create(userDto)
-        return ResponseEntity(
-            createdUser,
-            HttpStatus.CREATED
-        )
-    }
-
-    @GetMapping("/{id}")
-    fun getById(
-        @PathVariable("id") userId: UUID,
-    ): ResponseEntity<User> {
-        val user = userService.getById(userId)
+    fun getAuthenticatedUser(): ResponseEntity<User> {
+        val user = userService.getAuthenticatedUser()
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(user)
-
     }
 
-    @PutMapping("/{id}")
-    fun update(
-        @PathVariable("id") userId: UUID,
+    /**
+     * Update the data of the authenticated User.
+     */
+    @PutMapping
+    fun updateAuthenticatedUser(
         @RequestBody userDto: UserDto,
     ): ResponseEntity<User> {
-        val updatedUser = userService.update(userId, userDto)
+        val updatedUser = userService.updateAuthenticatedUser(userDto)
             ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(updatedUser)
     }
 
-    @DeleteMapping("/{id}")
-    fun delete(
-        @PathVariable("id") userId: UUID,
-    ): ResponseEntity<Void> {
-        return if (!userService.delete(userId)) {
-            ResponseEntity.notFound().build()
-        } else {
-            ResponseEntity.noContent().build()
-        }
+    /**
+     * Delete the authenticated User.
+     */
+    @DeleteMapping
+    fun deleteAuthenticatedUser(): ResponseEntity<Void> {
+        userService.deleteAuthenticatedUser()
+        return ResponseEntity.noContent().build()
     }
 }

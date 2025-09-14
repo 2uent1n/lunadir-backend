@@ -1,40 +1,55 @@
 package com.lunadir.backend.users
 
+import com.lunadir.backend.security.AuthContextService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val authContextService: AuthContextService,
 ) {
 
-    fun getAll(): List<User> {
-        return userRepository.findAll().toList()
+    /**
+     * Gets the authenticated User's data.
+     */
+    fun getAuthenticatedUser(): User? {
+        val userId = authContextService.getAuthenticatedUserId()
+        return userRepository.findByIdOrNull(userId)
     }
 
-    fun create(userDto: UserDto): User {
-        return userRepository.save(
+    /**
+     * Creates a new User with an email and a hashed password.
+     */
+    fun create(email: String, hashedPassword: String) {
+        userRepository.save(
             User(
-                name = userDto.name,
-                email = userDto.email,
+                email = email,
+                hashedPassword = hashedPassword,
             )
         )
     }
 
-    fun getById(id: UUID): User? {
-        return userRepository.findByIdOrNull(id)
-    }
-
-    fun update(id: UUID, userDto: UserDto): User? {
-        val existingUser = getById(id) ?: return null
-        val updatedUser = existingUser.copy(name = userDto.name, email = userDto.email)
+    /**
+     * Updates the authenticated User's data.
+     */
+    fun updateAuthenticatedUser(userDto: UserDto): User? {
+        val user = getAuthenticatedUser() ?: return null
+        val updatedUser = user.copy(name = userDto.name, email = userDto.email)
         return userRepository.save(updatedUser)
     }
 
-    fun delete(id: UUID): Boolean {
-        if (!userRepository.existsById(id)) return false
-        userRepository.deleteById(id)
-        return true
+    /**
+     * Deletes the authenticated User.
+     */
+    fun deleteAuthenticatedUser() {
+        val userId = authContextService.getAuthenticatedUserId()
+        if (!userRepository.existsById(userId)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.")
+        }
+        userRepository.deleteById(userId)
     }
 }
