@@ -9,52 +9,59 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api/notes")
+@RequestMapping("/notes")
 class NoteController(
     private val noteService: NoteService
 ) {
 
-    @GetMapping
-    fun getAllByUserId(
-        @RequestParam(required = true) userId: UUID,
-    ): ResponseEntity<List<Note>> {
-        val notes = noteService.getAllByUserId(userId)
-        return ResponseEntity.ok(notes)
-    }
-
-    @GetMapping("/{id}")
-    fun getById(
-        @PathVariable("id") userId: UUID
-    ): ResponseEntity<Note> {
-        val note = noteService.getById(userId)
-            ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(note)
-    }
-
+    /**
+     * Create a Note, owned by the authenticated User.
+     */
     @PostMapping
     fun create(
         @RequestBody noteDto: NoteDto,
     ): ResponseEntity<Note> {
         val createdNote = noteService.create(noteDto)
-            ?: return ResponseEntity.notFound().build()
         return ResponseEntity(
             createdNote,
             HttpStatus.CREATED
         )
     }
 
+    /**
+     * Get all the Notes of the authenticated User.
+     */
+    @GetMapping
+    fun getAll(): ResponseEntity<List<Note>> {
+        val notes = noteService.getAllForAuthenticatedUser()
+        return ResponseEntity.ok(notes)
+    }
+
+    /**
+     * Get a Note by its ID, only if its owner is the authenticated User.
+     */
+    @GetMapping("/{id}")
+    fun getById(
+        @PathVariable("id") noteId: UUID
+    ): ResponseEntity<Note> {
+        val note = noteService.getByIdForAuthenticatedUser(noteId)
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(note)
+    }
+
+    /**
+     * Update a Note, only if its owner is the authenticated User.
+     */
     @PutMapping("/{id}")
     fun update(
         @PathVariable("id") noteId: UUID,
         @RequestBody noteDto: NoteDto,
     ): ResponseEntity<Note> {
         val updatedNote = noteService.update(noteId, noteDto)
-            ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(updatedNote)
     }
 
@@ -62,9 +69,7 @@ class NoteController(
     fun delete(
         @PathVariable("id") noteId: UUID
     ): ResponseEntity<Void> {
-        return if (!noteService.delete(noteId)) {
-            ResponseEntity.notFound().build()
-        } else
-            ResponseEntity.noContent().build()
+        noteService.delete(noteId)
+        return ResponseEntity.noContent().build()
     }
 }
