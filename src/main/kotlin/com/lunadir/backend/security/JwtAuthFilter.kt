@@ -11,12 +11,14 @@ import org.springframework.web.filter.OncePerRequestFilter
 /**
  * Filters requests with a Bearer Authentication token to validate
  * the access token inside and extract the user ID.
+ *
+ * Extends OncePerRequestFilter to ensure that the filter runs
+ * only once per request (e.g. redirections, forwards).
  **/
 @Component
 class JwtAuthFilter(
     private val jwtService: JwtService,
-): OncePerRequestFilter() { /* Extends OncePerRequestFilter to ensure that the filter runs
-    only once per request (e.g. redirections, forwards). */
+) : OncePerRequestFilter() {
 
     /**
      * Main method that executes for every HTTP request.
@@ -28,20 +30,20 @@ class JwtAuthFilter(
     ) {
         val authHeader = request.getHeader("Authorization")
         if (
-            authHeader != null
-            && authHeader.startsWith("Bearer ")
-            && jwtService.validateAccessToken(authHeader)
-            ) {
-                val userId = jwtService.getUserIdFromToken(authHeader)
-                // // Create a Spring Security authentication object (no credentials, since we're using JWT)
-                val auth = UsernamePasswordAuthenticationToken(userId, null, emptyList())
-                // Place the authentication in the security context. Now it can be accessed throughout the application.
-                SecurityContextHolder.getContext().authentication = auth
-            }
+            authHeader != null &&
+            authHeader.startsWith("Bearer ") &&
+            jwtService.validateAccessToken(authHeader)
+        ) {
+            val userId = jwtService.getUserIdFromToken(authHeader)
+            // // Create a Spring Security authentication object (no credentials, since we're using JWT)
+            val auth = UsernamePasswordAuthenticationToken(userId, null, emptyList())
+            // Place the authentication in the security context. Now it can be accessed throughout the application.
+            SecurityContextHolder.getContext().authentication = auth
+        }
         /**
          * Pass control to the next filter in the chain.
          * Without this, the request would stop here and never reach the controller.
          */
         filterChain.doFilter(request, response)
-        }
     }
+}

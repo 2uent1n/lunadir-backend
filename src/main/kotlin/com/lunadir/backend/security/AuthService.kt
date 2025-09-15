@@ -1,17 +1,15 @@
 package com.lunadir.backend.security
 
-import com.lunadir.backend.security.refresh_tokens.RefreshTokenRepository
+import com.lunadir.backend.security.refreshTokens.RefreshTokenRepository
 import com.lunadir.backend.users.UserRepository
 import com.lunadir.backend.users.UserService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
-import java.util.UUID
 
 /**
  * Service responsible for handling the

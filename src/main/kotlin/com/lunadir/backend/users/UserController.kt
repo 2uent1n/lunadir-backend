@@ -1,6 +1,5 @@
 package com.lunadir.backend.users
 
-import com.lunadir.backend.security.AuthService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/users")
 class UserController(
     private val userService: UserService,
-    private val authService: AuthService,
 ) {
 
     /**

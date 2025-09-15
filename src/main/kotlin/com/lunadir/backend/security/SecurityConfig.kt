@@ -27,12 +27,10 @@ class SecurityConfig(
             // Disable CSRF protection since we're using JWT tokens (stateless API)
             // CSRF protection is mainly for session-based authentication with cookies
             .csrf { it.disable() }
-
             // Configure session management to be STATELESS
             // This means Spring Security won't create or use HTTP sessions
             // Perfect for JWT-based APIs where each request is independent
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-
             // Configure which requests require authentication
             .authorizeHttpRequests {
                 it
@@ -40,7 +38,6 @@ class SecurityConfig(
                     // These endpoints don't require authentication
                     .requestMatchers("/auth/**")
                     .permitAll()
-
                     // Allow internal Spring dispatcher requests (error pages, forwards)
                     // These are internal Spring operations that shouldn't require auth
                     .dispatcherTypeMatchers(
@@ -48,22 +45,18 @@ class SecurityConfig(
                         DispatcherType.FORWARD,
                     )
                     .permitAll()
-
                     // All other requests require authentication
                     .anyRequest()
                     .authenticated()
             }
-
             // Configure what happens when an unauthenticated user tries to access protected resources
             .exceptionHandling {
                 // Return HTTP 401 Unauthorized status
                 it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             }
-
             // Add the custom JWT filter BEFORE the default username/password filter
             // This ensures JWT tokens are checked before Spring tries other authentication methods
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
-
             // Build and return the configured SecurityFilterChain
             .build()
     }
