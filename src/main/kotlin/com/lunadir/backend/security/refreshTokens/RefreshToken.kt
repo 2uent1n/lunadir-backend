@@ -1,4 +1,4 @@
-package com.lunadir.backend.security.refresh_tokens
+package com.lunadir.backend.security.refreshTokens
 
 import com.lunadir.backend.users.User
 import jakarta.persistence.Column
@@ -30,4 +30,4 @@ data class RefreshToken(
     val hashedToken: String,
     @Column(name = "created_at")
     val createdAt: Instant = Instant.now(),
-    )
+)

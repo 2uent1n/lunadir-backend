@@ -1,7 +1,7 @@
 package com.lunadir.backend.security
 
-import com.lunadir.backend.security.refresh_tokens.RefreshToken
-import com.lunadir.backend.security.refresh_tokens.RefreshTokenRepository
+import com.lunadir.backend.security.refreshTokens.RefreshToken
+import com.lunadir.backend.security.refreshTokens.RefreshTokenRepository
 import com.lunadir.backend.users.User
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -53,7 +53,8 @@ class JwtService(
             .claim("tokenType", tokenType)
             .issuedAt(now)
             .expiration(expiryDate)
-            .signWith(secretKey, Jwts.SIG.HS256) // A simple algorithm is enough here, because the key is generated randomly
+            // A simple algorithm is enough here, because the key is generated randomly
+            .signWith(secretKey, Jwts.SIG.HS256)
             .compact()
     }
 
@@ -174,5 +175,4 @@ class JwtService(
             refreshToken = newRefreshToken
         )
     }
-
 }

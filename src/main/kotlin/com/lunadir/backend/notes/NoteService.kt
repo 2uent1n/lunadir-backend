@@ -37,6 +37,7 @@ class NoteService(
      */
     fun create(noteDto: NoteDto): Note {
         val userId = authContextService.getAuthenticatedUserId()
+
         /**
          * Using the reference saves an SQL request, but will result
          * in a runtime error if the User does not exist, which
@@ -54,7 +55,8 @@ class NoteService(
         )
         return noteRepository.save(
             noteToCreate
-        )}
+        )
+    }
 
     /**
      * Asserts that the provided Note is owned by the User with the provided userId.
